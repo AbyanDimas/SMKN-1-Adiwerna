@@ -1,0 +1,22 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 🔒 Security Vulnerability (Private)
+    url: mailto:security@smkn1adiwerna.com
+    about: Laporkan vulnerability keamanan secara private ke tim security
+  
+  - name: 📞 IT Support (Urgent)
+    url: mailto:it-support@smkn1adiwerna.com
+    about: Untuk masalah urgent yang membutuhkan bantuan langsung
+  
+  - name: 💬 Diskusi Komunitas
+    url: https://github.com/username/SMKN-1-Adiwerna/discussions
+    about: Diskusi umum, tanya jawab, dan sharing ide dengan komunitas
+  
+  - name: 📚 Wiki & Dokumentasi
+    url: https://github.com/username/SMKN-1-Adiwerna/wiki
+    about: Akses dokumentasi lengkap dan panduan penggunaan
+  
+  - name: 🌐 Website Resmi
+    url: https://smkn1adiwerna.com
+    about: Kunjungi website resmi SMKN 1 Adiwerna
+
