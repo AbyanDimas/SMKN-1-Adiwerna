@@ -74,11 +74,12 @@ export interface Config {
     documents: Document;
     extracurriculars: Extracurricular;
     achievements: Achievement;
-    news: News;
+    berita: Berita;
     events: Event;
     announcements: Announcement;
     gallery: Gallery;
     organizationStructure: OrganizationStructure;
+    schoolProfile: SchoolProfile;
     partners: Partner;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -93,11 +94,12 @@ export interface Config {
     documents: DocumentsSelect<false> | DocumentsSelect<true>;
     extracurriculars: ExtracurricularsSelect<false> | ExtracurricularsSelect<true>;
     achievements: AchievementsSelect<false> | AchievementsSelect<true>;
-    news: NewsSelect<false> | NewsSelect<true>;
+    berita: BeritaSelect<false> | BeritaSelect<true>;
     events: EventsSelect<false> | EventsSelect<true>;
     announcements: AnnouncementsSelect<false> | AnnouncementsSelect<true>;
     gallery: GallerySelect<false> | GallerySelect<true>;
     organizationStructure: OrganizationStructureSelect<false> | OrganizationStructureSelect<true>;
+    schoolProfile: SchoolProfileSelect<false> | SchoolProfileSelect<true>;
     partners: PartnersSelect<false> | PartnersSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -109,14 +111,12 @@ export interface Config {
   globals: {
     contactInfo: ContactInfo;
     visionMission: VisionMission;
-    schoolProfile: SchoolProfile;
     aboutPage: AboutPage;
     socialMedia: SocialMedia;
   };
   globalsSelect: {
     contactInfo: ContactInfoSelect<false> | ContactInfoSelect<true>;
     visionMission: VisionMissionSelect<false> | VisionMissionSelect<true>;
-    schoolProfile: SchoolProfileSelect<false> | SchoolProfileSelect<true>;
     aboutPage: AboutPageSelect<false> | AboutPageSelect<true>;
     socialMedia: SocialMediaSelect<false> | SocialMediaSelect<true>;
   };
@@ -227,66 +227,66 @@ export interface Media {
  */
 export interface Department {
   id: string;
-  name: string;
+  nama: string;
   /**
-   * URL-friendly identifier for the department
+   * Identifikasi URL-friendly untuk departemen
    */
   slug: string;
-  description?: string | null;
+  deskripsi?: string | null;
   /**
-   * Main image representing the department
+   * Gambar utama yang merepresentasikan departemen
    */
-  featuredImage: string | Media;
-  gallery?:
+  gambarUtama: string | Media;
+  galeriFoto?:
     | {
-        image: string | Media;
-        caption?: string | null;
+        gambar: string | Media;
+        keterangan?: string | null;
         id?: string | null;
       }[]
     | null;
-  headOfDepartment: {
-    name: string;
-    title: string;
-    bio?: string | null;
-    photo?: (string | null) | Media;
+  kepalaDepartemen: {
+    nama: string;
+    jabatan: string;
+    biografi?: string | null;
+    foto?: (string | null) | Media;
     email?: string | null;
   };
-  programs?:
+  programAkademik?:
     | {
-        programName: string;
-        programDescription?: string | null;
-        programImage?: (string | null) | Media;
+        namaProgram: string;
+        deskripsiProgram?: string | null;
+        gambarProgram?: (string | null) | Media;
         id?: string | null;
       }[]
     | null;
-  industryPartners?:
+  mitraIndustri?:
     | {
-        partnerName: string;
-        partnerLogo: string | Media;
-        partnerWebsite?: string | null;
-        collaborationDetails?: string | null;
+        namaMitra: string;
+        logoMitra: string | Media;
+        websiteMitra?: string | null;
+        detailKolaborasi?: string | null;
         id?: string | null;
       }[]
     | null;
   seo?: {
     /**
-     * Title for search engines (50-60 characters)
+     * Judul untuk mesin pencari (50-60 karakter)
      */
-    metaTitle?: string | null;
+    judulMeta?: string | null;
     /**
-     * Description for search engines (150-160 characters)
+     * Deskripsi untuk mesin pencari (150-160 karakter)
      */
-    metaDescription?: string | null;
+    deskripsiMeta?: string | null;
     /**
-     * Comma-separated keywords for SEO
+     * Kata kunci dipisahkan koma untuk SEO
      */
-    keywords?: string | null;
-    ogImage?: (string | null) | Media;
+    kataKunci?: string | null;
+    gambarOg?: (string | null) | Media;
   };
-  contactInformation?: {
+  informasiKontak?: {
     email?: string | null;
-    phone?: string | null;
-    location?: string | null;
+    telepon?: string | null;
+    lokasi?: string | null;
   };
   updatedAt: string;
   createdAt: string;
@@ -385,20 +385,20 @@ export interface Achievement {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "news".
+ * via the `definition` "berita".
  */
-export interface News {
+export interface Berita {
   id: string;
   /**
-   * News headline (max 120 characters)
+   * Judul berita (maksimal 120 karakter)
    */
-  title: string;
+  judul: string;
   /**
-   * URL-friendly identifier
+   * Identifikasi untuk URL
    */
   slug: string;
   status?: ('draft' | 'published' | 'archived') | null;
-  content: {
+  konten: {
     root: {
       type: string;
       children: {
@@ -414,46 +414,46 @@ export interface News {
     [k: string]: unknown;
   };
   /**
-   * Short summary for previews (max 200 characters)
+   * Ringkasan singkat untuk pratinjau (maksimal 200 karakter)
    */
-  excerpt?: string | null;
+  ringkasan?: string | null;
   /**
-   * Main image displayed with the news article
+   * Gambar utama yang ditampilkan dengan artikel berita
    */
-  featuredImage: string | Media;
-  imageGallery?:
+  gambarUtama: string | Media;
+  galeriGambar?:
     | {
-        image: string | Media;
-        caption?: string | null;
+        gambar: string | Media;
+        keterangan?: string | null;
         id?: string | null;
       }[]
     | null;
-  publishDate: string;
-  category?: ('academic' | 'event' | 'achievement' | 'announcement' | 'general') | null;
-  tags?:
+  tanggalPublikasi: string;
+  kategori?: ('academic' | 'event' | 'achievement' | 'announcement' | 'general') | null;
+  tag?:
     | {
-        tag?: string | null;
+        namaTag?: string | null;
         id?: string | null;
       }[]
     | null;
   /**
-   * Display this news in featured sections
+   * Tampilkan berita ini di bagian unggulan
    */
-  isFeatured?: boolean | null;
-  relatedNews?: (string | News)[] | null;
-  relatedEvents?: (string | Event)[] | null;
+  fitur?: boolean | null;
+  beritaTerkait?: (string | Berita)[] | null;
+  acaraTerkait?: (string | Event)[] | null;
   seo?: {
     /**
-     * Title for search engines (50-60 characters)
+     * Judul untuk mesin pencari (50-60 karakter)
      */
-    metaTitle?: string | null;
+    judulMeta?: string | null;
     /**
-     * Description for search engines (150-160 characters)
+     * Deskripsi untuk mesin pencari (150-160 karakter)
      */
-    metaDescription?: string | null;
-    keywords?: string | null;
+    deskripsiMeta?: string | null;
+    kataKunci?: string | null;
   };
-  author?: (string | null) | User;
+  penulis?: (string | null) | User;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -565,6 +565,63 @@ export interface OrganizationStructure {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "schoolProfile".
+ */
+export interface SchoolProfile {
+  id: string;
+  schoolName: string;
+  logo?: (string | null) | Media;
+  address: string;
+  phone?: string | null;
+  email?: string | null;
+  website?: string | null;
+  accreditation?: {
+    rating?: string | null;
+    certificateNumber?: string | null;
+    validUntil?: string | null;
+  };
+  history?: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  vision?: string | null;
+  mission?:
+    | {
+        point: string;
+        id?: string | null;
+      }[]
+    | null;
+  facilities?:
+    | {
+        name: string;
+        description?: string | null;
+        image?: (string | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  gallery?:
+    | {
+        image: string | Media;
+        caption?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "partners".
  */
 export interface Partner {
@@ -613,8 +670,8 @@ export interface PayloadLockedDocument {
         value: string | Achievement;
       } | null)
     | ({
-        relationTo: 'news';
-        value: string | News;
+        relationTo: 'berita';
+        value: string | Berita;
       } | null)
     | ({
         relationTo: 'events';
@@ -631,6 +688,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'organizationStructure';
         value: string | OrganizationStructure;
+      } | null)
+    | ({
+        relationTo: 'schoolProfile';
+        value: string | SchoolProfile;
       } | null)
     | ({
         relationTo: 'partners';
@@ -764,57 +825,57 @@ export interface MediaSelect<T extends boolean = true> {
  * via the `definition` "departments_select".
  */
 export interface DepartmentsSelect<T extends boolean = true> {
-  name?: T;
+  nama?: T;
   slug?: T;
-  description?: T;
-  featuredImage?: T;
-  gallery?:
+  deskripsi?: T;
+  gambarUtama?: T;
+  galeriFoto?:
     | T
     | {
-        image?: T;
-        caption?: T;
+        gambar?: T;
+        keterangan?: T;
         id?: T;
       };
-  headOfDepartment?:
+  kepalaDepartemen?:
     | T
     | {
-        name?: T;
-        title?: T;
-        bio?: T;
-        photo?: T;
+        nama?: T;
+        jabatan?: T;
+        biografi?: T;
+        foto?: T;
         email?: T;
       };
-  programs?:
+  programAkademik?:
     | T
     | {
-        programName?: T;
-        programDescription?: T;
-        programImage?: T;
+        namaProgram?: T;
+        deskripsiProgram?: T;
+        gambarProgram?: T;
         id?: T;
       };
-  industryPartners?:
+  mitraIndustri?:
     | T
     | {
-        partnerName?: T;
-        partnerLogo?: T;
-        partnerWebsite?: T;
-        collaborationDetails?: T;
+        namaMitra?: T;
+        logoMitra?: T;
+        websiteMitra?: T;
+        detailKolaborasi?: T;
         id?: T;
       };
   seo?:
     | T
     | {
-        metaTitle?: T;
-        metaDescription?: T;
-        keywords?: T;
-        ogImage?: T;
+        judulMeta?: T;
+        deskripsiMeta?: T;
+        kataKunci?: T;
+        gambarOg?: T;
       };
-  contactInformation?:
+  informasiKontak?:
     | T
     | {
         email?: T;
-        phone?: T;
-        location?: T;
+        telepon?: T;
+        lokasi?: T;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -911,41 +972,41 @@ export interface AchievementsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "news_select".
+ * via the `definition` "berita_select".
  */
-export interface NewsSelect<T extends boolean = true> {
-  title?: T;
+export interface BeritaSelect<T extends boolean = true> {
+  judul?: T;
   slug?: T;
   status?: T;
-  content?: T;
-  excerpt?: T;
-  featuredImage?: T;
-  imageGallery?:
+  konten?: T;
+  ringkasan?: T;
+  gambarUtama?: T;
+  galeriGambar?:
     | T
     | {
-        image?: T;
-        caption?: T;
+        gambar?: T;
+        keterangan?: T;
         id?: T;
       };
-  publishDate?: T;
-  category?: T;
-  tags?:
+  tanggalPublikasi?: T;
+  kategori?: T;
+  tag?:
     | T
     | {
-        tag?: T;
+        namaTag?: T;
         id?: T;
       };
-  isFeatured?: T;
-  relatedNews?: T;
-  relatedEvents?: T;
+  fitur?: T;
+  beritaTerkait?: T;
+  acaraTerkait?: T;
   seo?:
     | T
     | {
-        metaTitle?: T;
-        metaDescription?: T;
-        keywords?: T;
+        judulMeta?: T;
+        deskripsiMeta?: T;
+        kataKunci?: T;
       };
-  author?: T;
+  penulis?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -1022,6 +1083,50 @@ export interface OrganizationStructureSelect<T extends boolean = true> {
       };
   chartImage?: T;
   lastUpdated?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "schoolProfile_select".
+ */
+export interface SchoolProfileSelect<T extends boolean = true> {
+  schoolName?: T;
+  logo?: T;
+  address?: T;
+  phone?: T;
+  email?: T;
+  website?: T;
+  accreditation?:
+    | T
+    | {
+        rating?: T;
+        certificateNumber?: T;
+        validUntil?: T;
+      };
+  history?: T;
+  vision?: T;
+  mission?:
+    | T
+    | {
+        point?: T;
+        id?: T;
+      };
+  facilities?:
+    | T
+    | {
+        name?: T;
+        description?: T;
+        image?: T;
+        id?: T;
+      };
+  gallery?:
+    | T
+    | {
+        image?: T;
+        caption?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1117,63 +1222,6 @@ export interface VisionMission {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "schoolProfile".
- */
-export interface SchoolProfile {
-  id: string;
-  schoolName: string;
-  logo?: (string | null) | Media;
-  address: string;
-  phone?: string | null;
-  email?: string | null;
-  website?: string | null;
-  accreditation?: {
-    rating?: string | null;
-    certificateNumber?: string | null;
-    validUntil?: string | null;
-  };
-  history?: {
-    root: {
-      type: string;
-      children: {
-        type: string;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  vision?: string | null;
-  mission?:
-    | {
-        point: string;
-        id?: string | null;
-      }[]
-    | null;
-  facilities?:
-    | {
-        name: string;
-        description?: string | null;
-        image?: (string | null) | Media;
-        id?: string | null;
-      }[]
-    | null;
-  gallery?:
-    | {
-        image: string | Media;
-        caption?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "aboutPage".
  */
 export interface AboutPage {
@@ -1250,51 +1298,6 @@ export interface VisionMissionSelect<T extends boolean = true> {
       };
   motto?: T;
   goals?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "schoolProfile_select".
- */
-export interface SchoolProfileSelect<T extends boolean = true> {
-  schoolName?: T;
-  logo?: T;
-  address?: T;
-  phone?: T;
-  email?: T;
-  website?: T;
-  accreditation?:
-    | T
-    | {
-        rating?: T;
-        certificateNumber?: T;
-        validUntil?: T;
-      };
-  history?: T;
-  vision?: T;
-  mission?:
-    | T
-    | {
-        point?: T;
-        id?: T;
-      };
-  facilities?:
-    | T
-    | {
-        name?: T;
-        description?: T;
-        image?: T;
-        id?: T;
-      };
-  gallery?:
-    | T
-    | {
-        image?: T;
-        caption?: T;
-        id?: T;
-      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

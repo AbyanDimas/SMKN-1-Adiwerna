@@ -8,108 +8,125 @@ import {
   ChevronRight, ArrowRight, Video, Mic,
   GraduationCap, Trophy, Users, School
 } from 'lucide-react';
+import useSWR from 'swr';
+import { format } from 'date-fns';
+import { id } from 'date-fns/locale';
+import { useState } from 'react';
 
-const news = [
-  {
-    id: 1,
-    title: "SMKN 1 Adiwerna Raih Juara Lomba Kompetensi Siswa Nasional 2024",
-    excerpt: "Tim kami berhasil meraih medali emas di bidang Web Technologies dan perak di bidang Network Administration",
-    date: "15 Juni 2024",
-    time: "10:00 WIB",
-    category: "Prestasi",
-    image: "/news-competition.jpg",
-    type: "featured",
-    author: "Tim Humas SMKN 1"
-  },
-  {
-    id: 2,
-    title: "Penerimaan Peserta Didik Baru Tahun 2024/2025 Dibuka",
-    excerpt: "Pendaftaran dibuka mulai 1 Juni hingga 30 Juni 2024. Kuota terbatas untuk 4 program keahlian unggulan.",
-    date: "1 Juni 2024",
-    time: "08:00 WIB",
-    category: "Pengumuman",
-    image: "/news-ppdb.jpg",
-    type: "normal",
-    author: "Panitia PPDB"
-  },
-  {
-    id: 3,
-    title: "Workshop Pengembangan Kurikulum Merdeka Belajar",
-    excerpt: "Guru-guru mengikuti workshop penyusunan kurikulum merdeka selama 3 hari bersama pakar pendidikan.",
-    date: "25 Mei 2024",
-    time: "13:30 WIB",
-    category: "Kegiatan",
-    image: "/news-workshop.jpg",
-    type: "normal",
-    author: "Tim Kurikulum"
-  },
-  {
-    id: 4,
-    title: "Kolaborasi dengan Google Indonesia untuk Program Digital Talent",
-    excerpt: "SMKN 1 Adiwerna terpilih sebagai sekolah mitra program Digital Talent Scholarship 2024",
-    date: "18 Mei 2024",
-    time: "09:15 WIB",
-    category: "Kerjasama",
-    image: "/news-google.jpg",
-    type: "highlight",
-    author: "Tim Kerjasama"
-  },
-  {
-    id: 5,
-    title: "Peluncuran Laboratorium IoT Terbaru",
-    excerpt: "Laboratorium Internet of Things dengan perangkat mutakhir resmi dibuka untuk praktik siswa",
-    date: "10 Mei 2024",
-    time: "14:00 WIB",
-    category: "Fasilitas",
-    image: "/news-lab.jpg",
-    type: "normal",
-    author: "Tim Sarpras"
-  },
-  {
-    id: 6,
-    title: "Kunjungan Industri ke Startup Lokal",
-    excerpt: "Siswa jurusan RPL dan Multimedia melakukan kunjungan ke beberapa startup teknologi di Jakarta",
-    date: "5 Mei 2024",
-    time: "11:45 WIB",
-    category: "Kegiatan",
-    image: "/news-visit.jpg",
-    type: "video",
-    author: "Tim Hubin"
-  },
-  {
-    id: 7,
-    title: "Webinar Karir di Era Digital bersama Alumni Sukses",
-    excerpt: "Tiga alumni sukses berbagi pengalaman bekerja di perusahaan teknologi ternama",
-    date: "28 April 2024",
-    time: "13:00 WIB",
-    category: "Alumni",
-    image: "/news-webinar.jpg",
-    type: "normal",
-    author: "Ikatan Alumni"
-  },
-  {
-    id: 8,
-    title: "Pembukaan Ekstrakurikuler Baru: Robotics Club",
-    excerpt: "Sekolah membuka ekstrakurikuler robotics untuk menampung minat siswa di bidang otomasi",
-    date: "20 April 2024",
-    time: "10:30 WIB",
-    category: "Ekstrakurikuler",
-    image: "/news-robot.jpg",
-    type: "normal",
-    author: "OSIS"
+// Type definitions for Payload CMS news data
+type Media = {
+  url: string;
+  alt?: string;
+  width?: number;
+  height?: number;
+};
+
+type Author = {
+  nama?: string;
+} | string;
+
+type NewsItem = {
+  id: string;
+  judul: string;
+  slug: string;
+  ringkasan?: string;
+  konten?: any;
+  gambarUtama?: Media;
+  kategori: 'academic' | 'event' | 'achievement' | 'announcement' | 'general';
+  tanggalPublikasi: string;
+  fitur?: boolean;
+  penulis?: Author;
+  status: 'draft' | 'published' | 'archived';
+};
+
+type NewsResponse = {
+  docs: NewsItem[];
+  totalPages: number;
+};
+
+// Fetch function for SWR
+const fetcher = async (url: string): Promise<NewsResponse> => {
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error('Failed to fetch data');
   }
-];
+  return res.json();
+};
 
 const categories = [
-  { name: "Semua", icon: <Newspaper className="w-4 h-4" /> },
-  { name: "Prestasi", icon: <Trophy className="w-4 h-4" /> },
-  { name: "Pengumuman", icon: <BookOpen className="w-4 h-4" /> },
-  { name: "Kegiatan", icon: <Users className="w-4 h-4" /> },
-  { name: "Alumni", icon: <GraduationCap className="w-4 h-4" /> },
-  { name: "Fasilitas", icon: <School className="w-4 h-4" /> }
+  { name: "Semua", value: "all", icon: <Newspaper className="w-4 h-4" /> },
+  { name: "Prestasi", value: "achievement", icon: <Trophy className="w-4 h-4" /> },
+  { name: "Pengumuman", value: "announcement", icon: <BookOpen className="w-4 h-4" /> },
+  { name: "Acara", value: "event", icon: <Users className="w-4 h-4" /> },
+  { name: "Akademik", value: "academic", icon: <GraduationCap className="w-4 h-4" /> },
+  { name: "Umum", value: "general", icon: <School className="w-4 h-4" /> }
 ];
 
+const DEFAULT_IMAGE = '/default-news.jpg';
+
 export default function Berita() {
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [page, setPage] = useState(1);
+  const limit = 8;
+
+  // Fetch news data from Payload CMS
+  const { data: newsData, error, isLoading } = useSWR<NewsResponse>(
+    `/api/berita?page=${page}&limit=${limit}&category=${selectedCategory !== 'all' ? selectedCategory : ''}`,
+    fetcher
+  );
+
+  // Format date helper
+  const formatDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      return format(date, 'd MMMM yyyy', { locale: id });
+    } catch {
+      return 'Tanggal tidak tersedia';
+    }
+  };
+
+  // Format time helper
+  const formatTime = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      return format(date, 'HH:mm');
+    } catch {
+      return '--:--';
+    }
+  };
+
+  // Get author name
+  const getAuthorName = (author?: Author): string => {
+    if (!author) return 'Admin';
+    if (typeof author === 'object' && author !== null) {
+      return author.nama || 'Admin';
+    }
+    return author || 'Admin';
+  };
+
+  // Get image URL with fallback
+  const getImageUrl = (media?: Media): string => {
+    return media?.url || DEFAULT_IMAGE;
+  };
+
+  // Get image alt text
+  const getImageAlt = (media?: Media, fallback?: string): string => {
+    return media?.alt || fallback || 'Gambar berita';
+  };
+
+  // Handle category change
+  const handleCategoryChange = (category: string) => {
+    setSelectedCategory(category);
+    setPage(1); // Reset to first page when changing category
+  };
+
+  // Handle load more
+  const handleLoadMore = () => {
+    if (newsData && page < newsData.totalPages) {
+      setPage(prev => prev + 1);
+    }
+  };
+
   return (
     <div className="bg-gray-50 dark:bg-gray-900">
       {/* Hero Section */}
@@ -161,6 +178,7 @@ export default function Berita() {
                   alt="Berita SMKN 1 Adiwerna"
                   fill
                   className="object-cover"
+                  priority
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-6">
                   <div>
@@ -188,12 +206,17 @@ export default function Berita() {
       <section className="py-8 bg-white dark:bg-gray-800 sticky top-0 z-10 shadow-sm">
         <div className="container mx-auto px-6 lg:px-14">
           <div className="flex overflow-x-auto pb-2 scrollbar-hide">
-            {categories.map((category, index) => (
+            {categories.map((category) => (
               <motion.button
-                key={index}
+                key={category.value}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className={`flex items-center whitespace-nowrap px-4 py-2 rounded-full mr-3 transition-colors ${index === 0 ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600'}`}
+                onClick={() => handleCategoryChange(category.value)}
+                className={`flex items-center whitespace-nowrap px-4 py-2 rounded-full mr-3 transition-colors ${
+                  selectedCategory === category.value 
+                    ? 'bg-blue-600 text-white' 
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600'
+                }`}
               >
                 <span className="mr-2">{category.icon}</span>
                 {category.name}
@@ -216,112 +239,144 @@ export default function Berita() {
             <span className="text-blue-600">Berita</span> Terbaru
           </motion.h2>
 
-          {/* Featured News */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
-            {news.filter(item => item.type === 'featured').map((item) => (
-              <motion.div
-                key={item.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                viewport={{ once: true }}
-                className="lg:col-span-3 bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-shadow"
-              >
-                <div className="flex flex-col lg:flex-row">
-                  <div className="lg:w-2/3 h-96 lg:h-auto relative">
-                    <Image
-                      src={item.image}
-                      alt={item.title}
-                      fill
-                      className="object-cover"
-                    />
-                    <div className="absolute top-4 right-4 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full">
-                      Featured
-                    </div>
-                  </div>
-                  <div className="lg:w-1/3 p-8">
-                    <div className="flex items-center text-gray-500 dark:text-gray-400 mb-4">
-                      <Calendar className="w-4 h-4 mr-2" />
-                      <span className="text-sm">{item.date} • {item.time}</span>
-                    </div>
-                    <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">{item.title}</h3>
-                    <p className="text-gray-600 dark:text-gray-300 mb-6">{item.excerpt}</p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-500 dark:text-gray-400">Oleh: {item.author}</span>
-                      <Link href={`/berita/${item.id}`}>
-                        <motion.button
-                          whileHover={{ x: 5 }}
-                          className="text-blue-600 dark:text-blue-400 font-medium flex items-center"
-                        >
-                          Baca Selengkapnya <ChevronRight className="ml-1 w-4 h-4" />
-                        </motion.button>
-                      </Link>
-                    </div>
-                  </div>
+          {isLoading ? (
+            <div className="flex justify-center items-center py-20">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+          ) : error ? (
+            <div className="text-center py-20 text-red-500">
+              Gagal memuat data berita. Silakan coba lagi.
+            </div>
+          ) : (
+            <>
+              {/* Featured News */}
+              {newsData?.docs.filter(item => item.fitur).length > 0 && (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
+                  {newsData.docs.filter(item => item.fitur).map((item) => (
+                    <motion.div
+                      key={item.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5 }}
+                      viewport={{ once: true }}
+                      className="lg:col-span-3 bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-shadow"
+                    >
+                      <div className="flex flex-col lg:flex-row">
+                        <div className="lg:w-2/3 h-96 lg:h-auto relative">
+                          <Image
+                            src={getImageUrl(item.gambarUtama)}
+                            alt={getImageAlt(item.gambarUtama, item.judul)}
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 1024px) 100vw, 50vw"
+                          />
+                          <div className="absolute top-4 right-4 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+                            Unggulan
+                          </div>
+                        </div>
+                        <div className="lg:w-1/3 p-8">
+                          <div className="flex items-center text-gray-500 dark:text-gray-400 mb-4">
+                            <Calendar className="w-4 h-4 mr-2" />
+                            <span className="text-sm">
+                              {formatDate(item.tanggalPublikasi)} • {formatTime(item.tanggalPublikasi)} WIB
+                            </span>
+                          </div>
+                          <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">{item.judul}</h3>
+                          <p className="text-gray-600 dark:text-gray-300 mb-6">{item.ringkasan || 'Tidak ada ringkasan tersedia'}</p>
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-gray-500 dark:text-gray-400">
+                              Oleh: {getAuthorName(item.penulis)}
+                            </span>
+                            <Link href={`/berita/${item.slug}`}>
+                              <motion.button
+                                whileHover={{ x: 5 }}
+                                className="text-blue-600 dark:text-blue-400 font-medium flex items-center"
+                              >
+                                Baca Selengkapnya <ChevronRight className="ml-1 w-4 h-4" />
+                              </motion.button>
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
                 </div>
-              </motion.div>
-            ))}
-          </div>
+              )}
 
-          {/* Normal News Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {news.filter(item => item.type === 'normal').map((item, index) => (
-              <motion.div
-                key={item.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className={`bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow ${index % 4 === 0 ? 'sm:col-span-2 lg:col-span-1' : ''}`}
-              >
-                <div className="relative h-48 w-full">
-                  <Image
-                    src={item.image}
-                    alt={item.title}
-                    fill
-                    className="object-cover"
-                  />
-                  <div className="absolute top-3 right-3 bg-white dark:bg-gray-700 text-gray-800 dark:text-white text-xs font-bold px-2 py-1 rounded-full shadow">
-                    {item.category}
-                  </div>
-                </div>
-                <div className="p-5">
-                  <div className="flex items-center text-gray-500 dark:text-gray-400 text-sm mb-2">
-                    <Calendar className="w-3 h-3 mr-1" />
-                    <span>{item.date}</span>
-                    <Clock className="w-3 h-3 ml-3 mr-1" />
-                    <span>{item.time}</span>
-                  </div>
-                  <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2">{item.title}</h3>
-                  <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{item.excerpt}</p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-500 dark:text-gray-400">Oleh: {item.author}</span>
-                    <Link href={`/berita/${item.id}`}>
-                      <motion.button
-                        whileHover={{ x: 5 }}
-                        className="text-blue-600 dark:text-blue-400 font-medium flex items-center text-sm"
-                      >
-                        Baca <ChevronRight className="ml-1 w-3 h-3" />
-                      </motion.button>
-                    </Link>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+              {/* Normal News Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {newsData?.docs
+                  .filter(item => !item.fitur)
+                  .map((item, index) => (
+                    <motion.div
+                      key={item.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                      viewport={{ once: true }}
+                      className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow"
+                    >
+                      <div className="relative h-48 w-full">
+                        <Image
+                          src={getImageUrl(item.gambarUtama)}
+                          alt={getImageAlt(item.gambarUtama, item.judul)}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        />
+                        <div className="absolute top-3 right-3 bg-white dark:bg-gray-700 text-gray-800 dark:text-white text-xs font-bold px-2 py-1 rounded-full shadow">
+                          {categories.find(cat => cat.value === item.kategori)?.name || 'Umum'}
+                        </div>
+                      </div>
+                      <div className="p-5">
+                        <div className="flex items-center text-gray-500 dark:text-gray-400 text-sm mb-2">
+                          <Calendar className="w-3 h-3 mr-1" />
+                          <span>{formatDate(item.tanggalPublikasi)}</span>
+                          <Clock className="w-3 h-3 ml-3 mr-1" />
+                          <span>{formatTime(item.tanggalPublikasi)} WIB</span>
+                        </div>
+                        <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2">{item.judul}</h3>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">
+                          {item.ringkasan || 'Tidak ada ringkasan tersedia'}
+                        </p>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                            Oleh: {getAuthorName(item.penulis)}
+                          </span>
+                          <Link href={`/berita/${item.slug}`}>
+                            <motion.button
+                              whileHover={{ x: 5 }}
+                              className="text-blue-600 dark:text-blue-400 font-medium flex items-center text-sm"
+                            >
+                              Baca <ChevronRight className="ml-1 w-3 h-3" />
+                            </motion.button>
+                          </Link>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+              </div>
 
-          {/* Load More Button */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true }}
-            className="text-center mt-16"
-          >
-            <button className="bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-800 dark:text-white font-bold py-3 px-8 rounded-full shadow-md transition-all flex items-center mx-auto border border-gray-200 dark:border-gray-700">
-              Muat Lebih Banyak
-            </button>
-          </motion.div>
+              {/* Load More Button */}
+              {newsData && page < newsData.totalPages && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                  viewport={{ once: true }}
+                  className="text-center mt-16"
+                >
+                  <button 
+                    onClick={handleLoadMore}
+                    className="bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-800 dark:text-white font-bold py-3 px-8 rounded-full shadow-md transition-all flex items-center mx-auto border border-gray-200 dark:border-gray-700"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? 'Memuat...' : 'Muat Lebih Banyak'}
+                  </button>
+                </motion.div>
+              )}
+            </>
+          )}
         </div>
       </section>
 

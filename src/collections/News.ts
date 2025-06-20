@@ -1,48 +1,46 @@
-import { CollectionConfig } from 'payload/types'
+import type { CollectionConfig } from 'payload/types';
 
-const News: CollectionConfig = {
-  slug: 'news',
+const Berita: CollectionConfig = {
+  slug: 'berita',
   labels: {
-    singular: 'News Article',
-    plural: 'News',
+    singular: 'Artikel Berita',
+    plural: 'Berita',
   },
   admin: {
-    useAsTitle: 'title',
-    defaultColumns: ['title', 'category', 'publishDate', 'status', 'isFeatured'],
-    group: 'Content',
-    preview: (doc) => {
-      return `${process.env.PAYLOAD_PUBLIC_SERVER_URL}/api/preview?url=${encodeURIComponent(
-        `/news/${doc.slug}`,
-      )}&secret=${process.env.PAYLOAD_PUBLIC_DRAFT_SECRET}`
+    useAsTitle: 'judul',
+    defaultColumns: ['judul', 'kategori', 'tanggalPublikasi', 'status', 'fitur'],
+    group: 'Konten',
+    preview: (doc: { slug: string }) => {
+      return `${process.env.PAYLOAD_PUBLIC_SERVER_URL}/berita/${doc.slug}?preview=true`
     },
   },
   versions: {
     drafts: {
       autosave: true,
     },
-    max: 10,
+    maxPerDoc: 10,
   },
   access: {
-    read: ({ req }) => {
-      if (req.user) return true
+    read: ({ req }: { req: { user: unknown } }) => {
+      if (req.user) return true;
       return {
         and: [
           { status: { equals: 'published' } },
-          { publishDate: { less_than_equal: new Date().toISOString() } },
+          { tanggalPublikasi: { less_than_equal: new Date().toISOString() } },
         ],
-      }
+      };
     },
   },
   fields: [
-    // Basic Information
+    // Informasi Dasar
     {
-      name: 'title',
+      name: 'judul',
       type: 'text',
       required: true,
       localized: true,
       maxLength: 120,
       admin: {
-        description: 'News headline (max 120 characters)',
+        description: 'Judul berita (maksimal 120 karakter)',
       },
     },
     {
@@ -52,18 +50,18 @@ const News: CollectionConfig = {
       unique: true,
       admin: {
         position: 'sidebar',
-        description: 'URL-friendly identifier',
+        description: 'Identifikasi untuk URL',
       },
       hooks: {
         beforeValidate: [
-          ({ value, siblingData }) => {
+          ({ value }: { value: unknown }) => {
             if (typeof value === 'string') {
               return value
                 .toLowerCase()
                 .replace(/[^a-z0-9]+/g, '-')
-                .replace(/(^-|-$)/g, '')
+                .replace(/(^-|-$)/g, '');
             }
-            return value
+            return value;
           },
         ],
       },
@@ -72,9 +70,9 @@ const News: CollectionConfig = {
       name: 'status',
       type: 'select',
       options: [
-        { label: 'Draft', value: 'draft' },
-        { label: 'Published', value: 'published' },
-        { label: 'Archived', value: 'archived' },
+        { label: 'Draf', value: 'draft' },
+        { label: 'Publikasikan', value: 'published' },
+        { label: 'Arsipkan', value: 'archived' },
       ],
       defaultValue: 'draft',
       admin: {
@@ -82,9 +80,9 @@ const News: CollectionConfig = {
       },
     },
 
-    // Content
+    // Konten
     {
-      name: 'content',
+      name: 'konten',
       type: 'richText',
       required: true,
       localized: true,
@@ -107,11 +105,13 @@ const News: CollectionConfig = {
                 {
                   name: 'caption',
                   type: 'text',
+                  label: 'Keterangan',
                 },
                 {
                   name: 'alignment',
                   type: 'select',
-                  options: ['left', 'center', 'right'],
+                  options: ['kiri', 'tengah', 'kanan'],
+                  label: 'Penjajaran',
                 },
               ],
             },
@@ -120,35 +120,35 @@ const News: CollectionConfig = {
       },
     },
     {
-      name: 'excerpt',
+      name: 'ringkasan',
       type: 'textarea',
       localized: true,
       maxLength: 200,
       admin: {
-        description: 'Short summary for previews (max 200 characters)',
+        description: 'Ringkasan singkat untuk pratinjau (maksimal 200 karakter)',
       },
     },
 
-    // Visuals
+    // Visual
     {
-      name: 'featuredImage',
+      name: 'gambarUtama',
       type: 'upload',
       relationTo: 'media',
       required: true,
       admin: {
-        description: 'Main image displayed with the news article',
+        description: 'Gambar utama yang ditampilkan dengan artikel berita',
       },
       filterOptions: {
         mimeType: { contains: 'image' },
       },
     },
     {
-      name: 'imageGallery',
+      name: 'galeriGambar',
       type: 'array',
-      label: 'Additional Images',
+      label: 'Gambar Tambahan',
       fields: [
         {
-          name: 'image',
+          name: 'gambar',
           type: 'upload',
           relationTo: 'media',
           required: true,
@@ -157,7 +157,7 @@ const News: CollectionConfig = {
           },
         },
         {
-          name: 'caption',
+          name: 'keterangan',
           type: 'text',
           localized: true,
         },
@@ -166,7 +166,7 @@ const News: CollectionConfig = {
 
     // Metadata
     {
-      name: 'publishDate',
+      name: 'tanggalPublikasi',
       type: 'date',
       defaultValue: () => new Date(),
       required: true,
@@ -174,18 +174,19 @@ const News: CollectionConfig = {
         position: 'sidebar',
         date: {
           pickerAppearance: 'dayAndTime',
+          displayFormat: 'd MMM yyy HH:mm',
         },
       },
     },
     {
-      name: 'category',
+      name: 'kategori',
       type: 'select',
       options: [
-        { label: 'Academic', value: 'academic' },
-        { label: 'Event', value: 'event' },
-        { label: 'Achievement', value: 'achievement' },
-        { label: 'Announcement', value: 'announcement' },
-        { label: 'General', value: 'general' },
+        { label: 'Akademik', value: 'academic' },
+        { label: 'Acara', value: 'event' },
+        { label: 'Prestasi', value: 'achievement' },
+        { label: 'Pengumuman', value: 'announcement' },
+        { label: 'Umum', value: 'general' },
       ],
       defaultValue: 'general',
       admin: {
@@ -193,41 +194,41 @@ const News: CollectionConfig = {
       },
     },
     {
-      name: 'tags',
+      name: 'tag',
       type: 'array',
-      label: 'Tags',
+      label: 'Tag',
       fields: [
         {
-          name: 'tag',
+          name: 'namaTag',
           type: 'text',
         },
       ],
     },
     {
-      name: 'isFeatured',
+      name: 'fitur',
       type: 'checkbox',
-      label: 'Featured News',
+      label: 'Berita Unggulan',
       defaultValue: false,
       admin: {
         position: 'sidebar',
-        description: 'Display this news in featured sections',
+        description: 'Tampilkan berita ini di bagian unggulan',
       },
     },
 
-    // Related Content
+    // Konten Terkait
     {
-      name: 'relatedNews',
+      name: 'beritaTerkait',
       type: 'relationship',
-      relationTo: 'news',
+      relationTo: 'berita',
       hasMany: true,
-      filterOptions: ({ id }) => {
-        return { id: { not_equals: id } }
+      filterOptions: ({ id }: { id: string }) => {
+        return { id: { not_equals: id } };
       },
     },
     {
-      name: 'relatedEvents',
+      name: 'acaraTerkait',
       type: 'relationship',
-      relationTo: 'events',
+      relationTo: 'events', // Tetap menggunakan 'events' sebagai slug collection acara
       hasMany: true,
     },
 
@@ -235,38 +236,38 @@ const News: CollectionConfig = {
     {
       name: 'seo',
       type: 'group',
-      label: 'SEO Settings',
+      label: 'Pengaturan SEO',
       fields: [
         {
-          name: 'metaTitle',
+          name: 'judulMeta',
           type: 'text',
           localized: true,
           admin: {
-            description: 'Title for search engines (50-60 characters)',
+            description: 'Judul untuk mesin pencari (50-60 karakter)',
           },
         },
         {
-          name: 'metaDescription',
+          name: 'deskripsiMeta',
           type: 'textarea',
           localized: true,
           admin: {
-            description: 'Description for search engines (150-160 characters)',
+            description: 'Deskripsi untuk mesin pencari (150-160 karakter)',
           },
         },
         {
-          name: 'keywords',
+          name: 'kataKunci',
           type: 'text',
           localized: true,
         },
       ],
     },
 
-    // Author Information
+    // Informasi Penulis
     {
-      name: 'author',
+      name: 'penulis',
       type: 'relationship',
-      relationTo: 'users',
-      defaultValue: ({ user }) => user.id,
+      relationTo: 'users', // Tetap menggunakan 'users' sebagai slug collection pengguna
+      defaultValue: ({ user }: { user?: { id: string } }) => user?.id,
       admin: {
         position: 'sidebar',
         allowCreate: false,
@@ -275,12 +276,16 @@ const News: CollectionConfig = {
   ],
   hooks: {
     beforeChange: [
-      async ({ data, req, operation }) => {
-        if (operation === 'create' && data.status === 'published') {
-          data.publishedBy = req.user.id
-          data.publishedAt = new Date()
+      async ({ data, req, operation }: { 
+        data: any, 
+        req: { user?: { id: string } }, 
+        operation: string 
+      }) => {
+        if (operation === 'create' && data.status === 'published' && req.user) {
+          data.dipublikasikanOleh = req.user.id;
+          data.dipublikasikanPada = new Date();
         }
-        return data
+        return data;
       },
     ],
   },
@@ -288,24 +293,24 @@ const News: CollectionConfig = {
     {
       path: '/slug/:slug',
       method: 'get',
-      handler: async (req, res) => {
-        const news = await req.payload.find({
-          collection: 'news',
+      handler: async (req: any, res: any) => {
+        const berita = await req.payload.find({
+          collection: 'berita',
           where: {
             slug: {
               equals: req.params.slug,
             },
           },
           limit: 1,
-        })
-        if (news.docs.length > 0) {
-          res.status(200).send(news.docs[0])
+        });
+        if (berita.docs.length > 0) {
+          res.status(200).send(berita.docs[0]);
         } else {
-          res.status(404).send({ error: 'Not Found' })
+          res.status(404).send({ error: 'Tidak Ditemukan' });
         }
       },
     },
   ],
-}
+};
 
-export default News
+export default Berita;

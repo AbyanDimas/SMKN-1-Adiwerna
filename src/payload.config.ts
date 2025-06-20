@@ -67,12 +67,13 @@ export default buildConfig({
     
     // Institutional Collections
     OrganizationStructure,
+    SchoolProfile,
     
     
     // Partnership Collections
     Partners,
   ],
-    globals: [ContactInfo, VisionMission, SchoolProfile, AboutPage, SocialMedia],
+    globals: [ContactInfo, VisionMission,  AboutPage, SocialMedia],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

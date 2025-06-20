@@ -3,16 +3,16 @@ import { CollectionConfig } from 'payload';
 const Departments: CollectionConfig = {
   slug: 'departments',
   admin: {
-    useAsTitle: 'name',
-    defaultColumns: ['name', 'headOfDepartment', 'slug', 'updatedAt'],
+    useAsTitle: 'nama',
+    defaultColumns: ['nama', 'kepalaDepartemen', 'slug', 'updatedAt'],
   },
   access: {
     read: () => true,
   },
   fields: [
-    // Basic Information
+    // Informasi Dasar
     {
-      name: 'name',
+      name: 'nama',
       type: 'text',
       required: true,
       localized: true,
@@ -23,66 +23,66 @@ const Departments: CollectionConfig = {
       required: true,
       unique: true,
       admin: {
-        description: 'URL-friendly identifier for the department',
+        description: 'Identifikasi URL-friendly untuk departemen',
       },
     },
     {
-      name: 'description',
+      name: 'deskripsi',
       type: 'textarea',
       localized: true,
     },
     
-    // Visual Elements
+    // Elemen Visual
     {
-      name: 'featuredImage',
+      name: 'gambarUtama',
       type: 'upload',
       relationTo: 'media',
       required: true,
       admin: {
-        description: 'Main image representing the department',
+        description: 'Gambar utama yang merepresentasikan departemen',
       },
     },
     {
-      name: 'gallery',
+      name: 'galeriFoto',
       type: 'array',
-      label: 'Photo Gallery',
+      label: 'Galeri Foto',
       fields: [
         {
-          name: 'image',
+          name: 'gambar',
           type: 'upload',
           relationTo: 'media',
           required: true,
         },
         {
-          name: 'caption',
+          name: 'keterangan',
           type: 'text',
           localized: true,
         }
       ],
     },
     
-    // Department Leadership
+    // Kepemimpinan Departemen
     {
-      name: 'headOfDepartment',
+      name: 'kepalaDepartemen',
       type: 'group',
-      label: 'Head of Department',
+      label: 'Kepala Departemen',
       fields: [
         {
-          name: 'name',
+          name: 'nama',
           type: 'text',
           required: true,
         },
         {
-          name: 'title',
+          name: 'jabatan',
           type: 'text',
           required: true,
         },
         {
-          name: 'bio',
+          name: 'biografi',
           type: 'textarea',
         },
         {
-          name: 'photo',
+          name: 'foto',
           type: 'upload',
           relationTo: 'media',
         },
@@ -93,117 +93,117 @@ const Departments: CollectionConfig = {
       ],
     },
     
-    // Academic Programs
+    // Program Akademik
     {
-      name: 'programs',
+      name: 'programAkademik',
       type: 'array',
-      label: 'Academic Programs',
+      label: 'Program Akademik',
       fields: [
         {
-          name: 'programName',
+          name: 'namaProgram',
           type: 'text',
           required: true,
           localized: true,
         },
         {
-          name: 'programDescription',
+          name: 'deskripsiProgram',
           type: 'textarea',
           localized: true,
         },
         {
-          name: 'programImage',
+          name: 'gambarProgram',
           type: 'upload',
           relationTo: 'media',
         },
       ],
     },
     
-    // Industry Partners
+    // Mitra Industri
     {
-      name: 'industryPartners',
+      name: 'mitraIndustri',
       type: 'array',
-      label: 'Industry Partners',
+      label: 'Mitra Industri',
       fields: [
         {
-          name: 'partnerName',
+          name: 'namaMitra',
           type: 'text',
           required: true,
         },
         {
-          name: 'partnerLogo',
+          name: 'logoMitra',
           type: 'upload',
           relationTo: 'media',
           required: true,
         },
         {
-          name: 'partnerWebsite',
+          name: 'websiteMitra',
           type: 'text',
-          label: 'Website URL',
+          label: 'URL Website',
         },
         {
-          name: 'collaborationDetails',
+          name: 'detailKolaborasi',
           type: 'textarea',
-          label: 'Collaboration Details',
+          label: 'Detail Kolaborasi',
           localized: true,
         },
       ],
     },
     
-    // SEO Fields
+    // Field SEO
     {
       name: 'seo',
       type: 'group',
-      label: 'SEO Settings',
+      label: 'Pengaturan SEO',
       fields: [
         {
-          name: 'metaTitle',
+          name: 'judulMeta',
           type: 'text',
           localized: true,
           admin: {
-            description: 'Title for search engines (50-60 characters)',
+            description: 'Judul untuk mesin pencari (50-60 karakter)',
           },
         },
         {
-          name: 'metaDescription',
+          name: 'deskripsiMeta',
           type: 'textarea',
           localized: true,
           admin: {
-            description: 'Description for search engines (150-160 characters)',
+            description: 'Deskripsi untuk mesin pencari (150-160 karakter)',
           },
         },
         {
-          name: 'keywords',
+          name: 'kataKunci',
           type: 'text',
           localized: true,
           admin: {
-            description: 'Comma-separated keywords for SEO',
+            description: 'Kata kunci dipisahkan koma untuk SEO',
           },
         },
         {
-          name: 'ogImage',
+          name: 'gambarOg',
           type: 'upload',
           relationTo: 'media',
-          label: 'Social Sharing Image',
+          label: 'Gambar untuk Media Sosial',
         },
       ],
     },
     
-    // Additional Information
+    // Informasi Tambahan
     {
-      name: 'contactInformation',
+      name: 'informasiKontak',
       type: 'group',
-      label: 'Contact Information',
+      label: 'Informasi Kontak',
       fields: [
         {
           name: 'email',
           type: 'text',
         },
         {
-          name: 'phone',
+          name: 'telepon',
           type: 'text',
         },
         {
-          name: 'location',
+          name: 'lokasi',
           type: 'text',
         },
       ],
